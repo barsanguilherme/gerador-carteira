@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerador de Código de Carteira</title>
+<style>
+  
+
+  :root {
+    --azul:     #1F4E79;
+    --azul-med: #2E75B6;
+    --azul-cla: #DEEAF1;
+    --verde:    #375623;
+    --verde-cla:#E2EFDA;
+    --ambar:    #7F6000;
+    --ambar-cla:#FFF2CC;
+    --verm:     #C00000;
+    --verm-cla: #FCE4D6;
+    --cinza:    #595959;
+    --cinza-cla:#F2F2F2;
+    --bg:       #F7F9FC;
+    --card:     #FFFFFF;
+    --border:   #D0DCE8;
+    --text:     #1A2B3C;
+    --muted:    #6B8296;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem 4rem;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    width: 100%;
+    max-width: 720px;
+    margin-bottom: 2.5rem;
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: .5rem;
+  }
+  .logo {
+    width: 44px; height: 44px;
+    background: var(--azul);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .logo svg { width: 24px; height: 24px; fill: white; }
+  .header h1 {
+    font-family: 'Courier New', Consolas, monospace;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--azul);
+    letter-spacing: -.5px;
+  }
+  .header-meta {
+    font-size: .8rem;
+    color: var(--muted);
+    padding-left: 58px;
+  }
+  .header-meta span {
+    display: inline-block;
+    background: var(--azul-cla);
+    color: var(--azul-med);
+    font-family: 'Courier New', Consolas, monospace;
+    font-size: .72rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-right: 6px;
+  }
+
+  /* ── CARD ── */
+  .card {
+    width: 100%;
+    max-width: 720px;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 2px 12px rgba(31,78,121,.06);
+  }
+
+  /* ── INPUT ── */
+  .input-label {
+    font-size: .75rem;
+    font-weight: 600;
+    color: var(--azul);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-bottom: .5rem;
+    display: block;
+  }
+  .input-row {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+  }
+  #cc-input {
+    flex: 1;
+    font-family: 'Courier New', Consolas, monospace;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--azul-med);
+    background: var(--azul-cla);
+    border: 2px solid var(--azul-med);
+    border-radius: 10px;
+    padding: .6rem 1rem;
+    outline: none;
+    text-align: center;
+    letter-spacing: .1em;
+    transition: border-color .2s, box-shadow .2s;
+    -moz-appearance: textfield;
+  }
+  #cc-input::-webkit-outer-spin-button,
+  #cc-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  #cc-input:focus {
+    border-color: var(--azul);
+    box-shadow: 0 0 0 4px rgba(46,117,182,.15);
+  }
+  #cc-input::placeholder { color: #A8BDD4; font-weight: 400; }
+
+  .btn-buscar {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    font-size: .9rem;
+    font-weight: 600;
+    background: var(--azul);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 0 1.5rem;
+    cursor: pointer;
+    transition: background .18s, transform .12s;
+    white-space: nowrap;
+  }
+  .btn-buscar:hover { background: var(--azul-med); }
+  .btn-buscar:active { transform: scale(.97); }
+
+  .hint {
+    font-size: .78rem;
+    color: var(--muted);
+    margin-top: .5rem;
+  }
+
+  /* ── RESULTADO ── */
+  #resultado { display: none; }
+
+  .res-prox {
+    background: var(--verde-cla);
+    border: 2px solid var(--verde);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .res-prox-label {
+    font-size: .72rem;
+    font-weight: 600;
+    color: var(--verde);
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    margin-bottom: .2rem;
+  }
+  .res-prox-code {
+    font-family: 'Courier New', Consolas, monospace;
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: var(--verde);
+    letter-spacing: .05em;
+    line-height: 1;
+  }
+  .btn-copiar {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    font-size: .8rem;
+    font-weight: 600;
+    background: var(--verde);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: .5rem 1rem;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background .18s, transform .12s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .btn-copiar:hover { background: #2A4018; }
+  .btn-copiar:active { transform: scale(.96); }
+  .btn-copiar.copiado { background: #555; }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 1.25rem;
+  }
+  .stat {
+    background: var(--cinza-cla);
+    border-radius: 10px;
+    padding: .85rem .75rem;
+    text-align: center;
+  }
+  .stat-val {
+    font-family: 'Courier New', Consolas, monospace;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: .25rem;
+  }
+  .stat-val.ativa  { color: var(--verde); }
+  .stat-val.tba    { color: var(--ambar); }
+  .stat-val.inativa{ color: var(--cinza); }
+  .stat-val.maxseq { color: var(--azul-med); }
+  .stat-label {
+    font-size: .68rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+
+  .polo-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: .7rem 1rem;
+    background: var(--azul-cla);
+    border-radius: 8px;
+    font-size: .85rem;
+    color: var(--azul);
+  }
+  .polo-info strong { font-weight: 600; }
+
+  /* ── ALERTA LIMITE ── */
+  .alerta-limite {
+    background: var(--verm-cla);
+    border: 1.5px solid var(--verm);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    font-size: .85rem;
+    color: var(--verm);
+    font-weight: 500;
+    margin-bottom: 1.25rem;
+    display: none;
+  }
+
+  /* ── ERRO ── */
+  #msg-erro {
+    display: none;
+    background: var(--verm-cla);
+    border: 1.5px solid #E8A090;
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    font-size: .85rem;
+    color: var(--verm);
+    font-weight: 500;
+  }
+
+  /* ── REGRAS ── */
+  .regras-card { background: var(--ambar-cla); border-color: #E8C870; }
+  .regras-card h3 {
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--ambar);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-bottom: .75rem;
+  }
+  .regras-card ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+  }
+  .regras-card li {
+    font-size: .82rem;
+    color: #5A4200;
+    padding-left: 1.2rem;
+    position: relative;
+    line-height: 1.5;
+  }
+  .regras-card li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: var(--ambar);
+    font-weight: 700;
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    margin-top: 2rem;
+    font-size: .75rem;
+    color: var(--muted);
+    text-align: center;
+    max-width: 720px;
+  }
+  .footer code {
+    font-family: 'Courier New', Consolas, monospace;
+    background: var(--cinza-cla);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: .72rem;
+  }
+
+  /* ── ANIMAÇÃO ── */
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .animate { animation: slideIn .25s ease; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="logo">
+      <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+    </div>
+    <h1>Gerador de Código de Carteira</h1>
+  </div>
+  <div class="header-meta">
+    <span id="total-ccs">655 CCs</span>
+    <span id="total-cods">7.282 códigos</span>
+    Operações de Polos · base: 03/06/2026
+  </div>
+</div>
+
+<!-- INPUT -->
+<div class="card">
+  <label class="input-label" for="cc-input">Centro de Custo (CC)</label>
+  <div class="input-row">
+    <input id="cc-input" type="number" maxlength="5" placeholder="ex: 15208" autocomplete="off"/>
+    <button class="btn-buscar" id="btn-buscar">Consultar</button>
+  </div>
+  <div class="hint">Digite os 5 dígitos do CC e pressione Enter ou clique em Consultar.</div>
+</div>
+
+<!-- ERRO -->
+<div id="msg-erro" class="card">
+  <strong>⚠ CC não encontrado</strong> — verifique se o número está correto ou se o CC existe na hierarquia atual.
+</div>
+
+<!-- RESULTADO -->
+<div id="resultado" class="card animate">
+
+  <div class="alerta-limite" id="alerta-limite">
+    ⚠ <strong>Sequência máxima atingida (99).</strong> Este CC chegou ao limite. Consulte a gestão antes de criar nova carteira.
+  </div>
+
+  <div class="res-prox" id="res-prox">
+    <div>
+      <div class="res-prox-label">Próximo código — USE ESTE</div>
+      <div class="res-prox-code" id="prox-codigo">—</div>
+    </div>
+    <button class="btn-copiar" id="btn-copiar">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      Copiar
+    </button>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat">
+      <div class="stat-val" id="st-total">—</div>
+      <div class="stat-label">Total no CC</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val ativa" id="st-ativa">—</div>
+      <div class="stat-label">Ativas</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val tba" id="st-tba">—</div>
+      <div class="stat-label">TBAs</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val inativa" id="st-inativa">—</div>
+      <div class="stat-label">Inativas</div>
+    </div>
+  </div>
+
+  <div class="polo-info">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+    <span>Polo: <strong id="polo-nome">—</strong></span>
+  </div>
+
+</div>
+
+<!-- REGRAS -->
+<div class="card regras-card">
+  <h3>Regras de negócio</h3>
+  <ul>
+    <li>Padrão: 5 dígitos CC + 2 dígitos de sequência. Ex: CC 15208 → 1520801, 1520802...</li>
+    <li>Código 00 é reservado para o supervisor do polo.</li>
+    <li>Códigos de carteiras inativas <strong>nunca são reutilizados</strong> — o gerador sempre usa max(seq)+1.</li>
+    <li>Após criar a carteira na hierarquia, atualize o arquivo Excel e gere um novo HTML.</li>
+    <li>CCs com sequência 99 estão no limite — consulte a gestão antes de criar nova carteira.</li>
+  </ul>
+</div>
+
+<div class="footer">
+  Gerado a partir da hierarquia de 01/06/2026 · 
+  Para atualizar: abra o <code>Gerador_Codigo_Carteira.xlsx</code> → Dados → Atualizar Tudo → execute o script Python novamente.
+</div>
+
+<script>
+(function() {
+
+var DADOS = {"12374": {"max_seq": 1, "total": 2, "ativas": 2, "tbas": 0, "inativas": 0, "polo": "Cone Norte"}, "12895": {"max_seq": 2, "total": 3, "ativas": 2, "tbas": 1, "inativas": 0, "polo": "Cone Sul"}, "14287": {"max_seq": 2, "total": 3, "ativas": 1, "tbas": 1, "inativas": 1, "polo": "Franquias/Associações"}, "12301": {"max_seq": 99, "total": 6, "ativas": 1, "tbas": 0, "inativas": 5, "polo": "MG Triângulo"}, "12303": {"max_seq": 99, "total": 8, "ativas": 1, "tbas": 2, "inativas": 5, "polo": "Gerencia CE1 LT"}, "13815": {"max_seq": 0, "total": 1, "ativas": 1, "tbas": 0, "inativas": 0, "polo": "SPI2 LT"}, "12299": {"max_seq": 99, "total": 9, "ativas": 2, "tbas": 1, "inativas": 6, "polo": "SP SJRP LT"}, "14040": {"max_seq": 99, "total": 1, "ativas": 1, "tbas": 0, "inativas": 0, "polo": "SP Guaruleste LT"}, "14047": {"max_seq": 99, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "SP RMC LT"}, "14049": {"max_seq": 99, "total": 1, "ativas": 1, "tbas": 0, "inativas": 0, "polo": "MG Zona da Mata LT"}, "13722": {"max_seq": 14, "total": 15, "ativas": 7, "tbas": 0, "inativas": 8, "polo": "SP Cantareira LT"}, "13723": {"max_seq": 14, "total": 15, "ativas": 4, "tbas": 2, "inativas": 9, "polo": "SP Mandaqui LT"}, "13970": {"max_seq": 14, "total": 14, "ativas": 3, "tbas": 0, "inativas": 11, "polo": "SP Brasilândia LT"}, "14023": {"max_seq": 14, "total": 14, "ativas": 6, "tbas": 0, "inativas": 8, "polo": "SP Alphaville LT"}, "14036": {"max_seq": 15, "total": 16, "ativas": 5, "tbas": 0, "inativas": 11, "polo": "SP Campinas 2 LT"}, "13720": {"max_seq": 16, "total": 16, "ativas": 5, "tbas": 0, "inativas": 11, "polo": "SP Vila Matilde LT"}, "13724": {"max_seq": 16, "total": 17, "ativas": 4, "tbas": 0, "inativas": 13, "polo": "SP Caçapava LT"}, "14025": {"max_seq": 17, "total": 18, "ativas": 6, "tbas": 0, "inativas": 12, "polo": "SP ABC LT"}, "14026": {"max_seq": 11, "total": 12, "ativas": 6, "tbas": 0, "inativas": 6, "polo": "SP Gonzaga LT"}, "14272": {"max_seq": 11, "total": 12, "ativas": 6, "tbas": 0, "inativas": 6, "polo": "SP Mogi das Cruzes LT"}, "13713": {"max_seq": 16, "total": 17, "ativas": 5, "tbas": 1, "inativas": 11, "polo": "MG Centro BH 1 LT"}, "13719": {"max_seq": 15, "total": 16, "ativas": 7, "tbas": 0, "inativas": 9, "polo": "MG Venda Nova LT"}, "13979": {"max_seq": 16, "total": 17, "ativas": 9, "tbas": 0, "inativas": 8, "polo": "MG Esmeraldas LT"}, "13985": {"max_seq": 15, "total": 16, "ativas": 8, "tbas": 0, "inativas": 8, "polo": "MG Betim LT"}, "13986": {"max_seq": 13, "total": 14, "ativas": 7, "tbas": 0, "inativas": 7, "polo": "MG Juiz de Fora LT"}, "13686": {"max_seq": 18, "total": 18, "ativas": 1, "tbas": 1, "inativas": 16, "polo": "SP Araçatuba 1 LT"}, "13689": {"max_seq": 16, "total": 17, "ativas": 5, "tbas": 0, "inativas": 12, "polo": "SP São José do Rio Preto LT"}, "13691": {"max_seq": 15, "total": 15, "ativas": 4, "tbas": 2, "inativas": 9, "polo": "SP Presidente Prudente 1 LT"}, "14018": {"max_seq": 13, "total": 14, "ativas": 4, "tbas": 2, "inativas": 8, "polo": "SP Franca LT"}, "14031": {"max_seq": 14, "total": 15, "ativas": 3, "tbas": 1, "inativas": 11, "polo": "SP Ribeirão Botânico LT"}, "14037": {"max_seq": 16, "total": 17, "ativas": 7, "tbas": 0, "inativas": 10, "polo": "SP Sertãozinho LT"}, "12302": {"max_seq": 99, "total": 8, "ativas": 2, "tbas": 1, "inativas": 5, "polo": "Gerencia BA1"}, "12897": {"max_seq": 99, "total": 6, "ativas": 1, "tbas": 0, "inativas": 5, "polo": "GO Goiás LT"}, "13681": {"max_seq": 15, "total": 16, "ativas": 7, "tbas": 0, "inativas": 9, "polo": "GO Jundiaí LT"}, "13683": {"max_seq": 13, "total": 14, "ativas": 1, "tbas": 0, "inativas": 13, "polo": "GO Jardim América LT"}, "14015": {"max_seq": 14, "total": 15, "ativas": 6, "tbas": 0, "inativas": 9, "polo": "DF Águas Claras LT"}, "14016": {"max_seq": 14, "total": 15, "ativas": 5, "tbas": 0, "inativas": 10, "polo": "DF Ponte Alta LT"}, "14019": {"max_seq": 15, "total": 16, "ativas": 6, "tbas": 1, "inativas": 9, "polo": "MS Monte Castelo LT"}, "14021": {"max_seq": 13, "total": 14, "ativas": 2, "tbas": 2, "inativas": 10, "polo": "MT Várzea Grande LT"}, "13696": {"max_seq": 18, "total": 19, "ativas": 7, "tbas": 2, "inativas": 10, "polo": "BA Salvador LT"}, "13698": {"max_seq": 13, "total": 14, "ativas": 3, "tbas": 0, "inativas": 11, "polo": "SE Aracaju LT"}, "14002": {"max_seq": 13, "total": 14, "ativas": 7, "tbas": 0, "inativas": 7, "polo": "AL Jatiúca LT"}, "14003": {"max_seq": 12, "total": 13, "ativas": 0, "tbas": 0, "inativas": 13, "polo": "AM Ponta Negra LT"}, "14005": {"max_seq": 19, "total": 20, "ativas": 9, "tbas": 0, "inativas": 11, "polo": "BA Linha Verde LT"}, "14009": {"max_seq": 15, "total": 16, "ativas": 4, "tbas": 0, "inativas": 12, "polo": "BA Vitória da Conquista LT"}, "13701": {"max_seq": 16, "total": 17, "ativas": 6, "tbas": 0, "inativas": 11, "polo": "MA São Luís LT"}, "13702": {"max_seq": 14, "total": 15, "ativas": 4, "tbas": 1, "inativas": 10, "polo": "PB João Pessoa LT"}, "13703": {"max_seq": 17, "total": 18, "ativas": 7, "tbas": 0, "inativas": 11, "polo": "PI Teresina LT"}, "13704": {"max_seq": 17, "total": 17, "ativas": 6, "tbas": 2, "inativas": 9, "polo": "RN Natal LT"}, "14006": {"max_seq": 13, "total": 14, "ativas": 2, "tbas": 0, "inativas": 12, "polo": "CE Fortaleza LT"}, "12300": {"max_seq": 99, "total": 8, "ativas": 1, "tbas": 1, "inativas": 6, "polo": "RJ Capital"}, "12899": {"max_seq": 99, "total": 7, "ativas": 0, "tbas": 0, "inativas": 7, "polo": "SC Coord1"}, "14044": {"max_seq": 99, "total": 1, "ativas": 1, "tbas": 0, "inativas": 0, "polo": "PR Coord1 LT"}, "13729": {"max_seq": 17, "total": 18, "ativas": 6, "tbas": 1, "inativas": 11, "polo": "RS Cachoeirinha LT"}, "13732": {"max_seq": 17, "total": 18, "ativas": 4, "tbas": 0, "inativas": 14, "polo": "SC Florianópolis Norte LT"}, "13735": {"max_seq": 13, "total": 14, "ativas": 4, "tbas": 0, "inativas": 10, "polo": "RS Porto Alegre Sul LT"}, "13739": {"max_seq": 17, "total": 18, "ativas": 6, "tbas": 2, "inativas": 10, "polo": "SC Baln. Camboriú LT"}, "13996": {"max_seq": 13, "total": 14, "ativas": 1, "tbas": 4, "inativas": 9, "polo": "RS Novo Hamburgo LT"}, "13988": {"max_seq": 16, "total": 17, "ativas": 9, "tbas": 0, "inativas": 8, "polo": "PR Curitiba LT"}, "13990": {"max_seq": 15, "total": 16, "ativas": 3, "tbas": 0, "inativas": 13, "polo": "PR Água Verde LT"}, "13993": {"max_seq": 14, "total": 15, "ativas": 4, "tbas": 1, "inativas": 10, "polo": "PR Maringá LT"}, "13995": {"max_seq": 15, "total": 16, "ativas": 2, "tbas": 4, "inativas": 10, "polo": "PR Londrina LT"}, "13997": {"max_seq": 17, "total": 18, "ativas": 6, "tbas": 0, "inativas": 12, "polo": "PR Cascavel LT"}, "13710": {"max_seq": 16, "total": 17, "ativas": 6, "tbas": 0, "inativas": 11, "polo": "RJ São Gonçalo LT"}, "13712": {"max_seq": 14, "total": 15, "ativas": 1, "tbas": 3, "inativas": 11, "polo": "RJ Centro Rio de Janeiro LT"}, "13718": {"max_seq": 13, "total": 13, "ativas": 6, "tbas": 0, "inativas": 7, "polo": "RJ Campo Grande LT"}, "13975": {"max_seq": 14, "total": 15, "ativas": 5, "tbas": 0, "inativas": 10, "polo": "RJ Madureira LT"}, "13980": {"max_seq": 14, "total": 15, "ativas": 7, "tbas": 1, "inativas": 7, "polo": "RJ Nova Iguaçu LT"}, "12345": {"max_seq": 67, "total": 1, "ativas": 0, "tbas": 1, "inativas": 0, "polo": "BOLSÃO POLOS"}, "13556": {"max_seq": 79, "total": 78, "ativas": 23, "tbas": 2, "inativas": 53, "polo": "SP Virtual São Paulo 1"}, "13897": {"max_seq": 86, "total": 50, "ativas": 12, "tbas": 1, "inativas": 37, "polo": "PB Virtual João Pessoa 1"}, "14277": {"max_seq": 44, "total": 29, "ativas": 1, "tbas": 0, "inativas": 28, "polo": "SP Virtual São Paulo 5"}, "14701": {"max_seq": 32, "total": 32, "ativas": 15, "tbas": 1, "inativas": 16, "polo": "PB Virtual João Pessoa 2"}, "14707": {"max_seq": 76, "total": 78, "ativas": 28, "tbas": 4, "inativas": 46, "polo": "SP Virtual São Paulo 2"}, "14350": {"max_seq": 78, "total": 46, "ativas": 13, "tbas": 1, "inativas": 32, "polo": "PB Virtual João Pessoa 4"}, "14706": {"max_seq": 31, "total": 32, "ativas": 18, "tbas": 1, "inativas": 13, "polo": "PB Virtual João Pessoa 6"}, "14897": {"max_seq": 27, "total": 28, "ativas": 12, "tbas": 1, "inativas": 15, "polo": "PB Virtual João Pessoa 8"}, "14947": {"max_seq": 17, "total": 19, "ativas": 12, "tbas": 1, "inativas": 6, "polo": "PB Virtual João Pessoa 10"}, "14951": {"max_seq": 17, "total": 18, "ativas": 9, "tbas": 1, "inativas": 8, "polo": "PB Virtual João Pessoa 12"}, "14702": {"max_seq": 31, "total": 32, "ativas": 17, "tbas": 1, "inativas": 14, "polo": "PB Virtual João Pessoa 3"}, "14705": {"max_seq": 31, "total": 32, "ativas": 21, "tbas": 1, "inativas": 10, "polo": "PB Virtual João Pessoa 5"}, "14835": {"max_seq": 31, "total": 32, "ativas": 21, "tbas": 1, "inativas": 10, "polo": "PB Virtual João Pessoa 7"}, "14945": {"max_seq": 17, "total": 18, "ativas": 11, "tbas": 1, "inativas": 6, "polo": "PB Virtual João Pessoa 9"}, "14949": {"max_seq": 17, "total": 18, "ativas": 12, "tbas": 1, "inativas": 5, "polo": "PB Virtual João Pessoa 11"}, "15011": {"max_seq": 12, "total": 12, "ativas": 9, "tbas": 0, "inativas": 3, "polo": "Renda Extra"}, "12294": {"max_seq": 0, "total": 1, "ativas": 1, "tbas": 0, "inativas": 0, "polo": "RS Polo Sul"}, "12375": {"max_seq": 0, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "-"}, "15194": {"max_seq": 0, "total": 1, "ativas": 1, "tbas": 0, "inativas": 0, "polo": "SPI5"}, "12898": {"max_seq": 99, "total": 12, "ativas": 3, "tbas": 0, "inativas": 9, "polo": "SP Central"}, "12909": {"max_seq": 99, "total": 11, "ativas": 2, "tbas": 1, "inativas": 8, "polo": "Paraná 1 Sr"}, "13816": {"max_seq": 99, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "-"}, "14042": {"max_seq": 99, "total": 1, "ativas": 1, "tbas": 0, "inativas": 0, "polo": "SP Rib Preto"}, "11642": {"max_seq": 11, "total": 11, "ativas": 1, "tbas": 0, "inativas": 10, "polo": "SP Araçatuba"}, "11970": {"max_seq": 12, "total": 13, "ativas": 4, "tbas": 0, "inativas": 9, "polo": "SP Ourinhos"}, "11986": {"max_seq": 8, "total": 9, "ativas": 0, "tbas": 0, "inativas": 9, "polo": "SP Presidente Prudente"}, "11994": {"max_seq": 13, "total": 14, "ativas": 5, "tbas": 0, "inativas": 9, "polo": "SP Catanduva"}, "12601": {"max_seq": 9, "total": 10, "ativas": 2, "tbas": 0, "inativas": 8, "polo": "SP Adamantina"}, "15080": {"max_seq": 10, "total": 11, "ativas": 9, "tbas": 0, "inativas": 2, "polo": "SP Votuporanga"}, "11821": {"max_seq": 15, "total": 16, "ativas": 4, "tbas": 1, "inativas": 11, "polo": "SP Marília"}, "11913": {"max_seq": 15, "total": 15, "ativas": 6, "tbas": 1, "inativas": 8, "polo": "SP Bauru"}, "12032": {"max_seq": 9, "total": 10, "ativas": 2, "tbas": 0, "inativas": 8, "polo": "SP Botucatu"}, "12552": {"max_seq": 14, "total": 13, "ativas": 2, "tbas": 0, "inativas": 11, "polo": "SP Agudos"}, "15082": {"max_seq": 7, "total": 8, "ativas": 4, "tbas": 0, "inativas": 4, "polo": "SP Garça"}, "11915": {"max_seq": 11, "total": 12, "ativas": 2, "tbas": 1, "inativas": 9, "polo": "SP S J do Rio Preto"}, "11988": {"max_seq": 11, "total": 12, "ativas": 2, "tbas": 0, "inativas": 10, "polo": "SP Bebedouro"}, "11990": {"max_seq": 13, "total": 14, "ativas": 4, "tbas": 0, "inativas": 10, "polo": "SP Araraquara"}, "11993": {"max_seq": 12, "total": 13, "ativas": 6, "tbas": 0, "inativas": 7, "polo": "SP São Carlos"}, "12550": {"max_seq": 11, "total": 12, "ativas": 3, "tbas": 0, "inativas": 9, "polo": "SP S J do Rio Preto Bosque"}, "12298": {"max_seq": 99, "total": 6, "ativas": 0, "tbas": 1, "inativas": 5, "polo": "SP Centro"}, "11588": {"max_seq": 11, "total": 10, "ativas": 2, "tbas": 0, "inativas": 8, "polo": "SP Vila Prudente"}, "11594": {"max_seq": 19, "total": 14, "ativas": 0, "tbas": 0, "inativas": 14, "polo": "SP Vila Mariana"}, "11603": {"max_seq": 18, "total": 15, "ativas": 0, "tbas": 0, "inativas": 15, "polo": "SP Ipiranga"}, "11604": {"max_seq": 22, "total": 18, "ativas": 4, "tbas": 0, "inativas": 14, "polo": "SP Santa Ifigênia"}, "11605": {"max_seq": 20, "total": 16, "ativas": 3, "tbas": 0, "inativas": 13, "polo": "SP Bom Retiro"}, "11895": {"max_seq": 16, "total": 16, "ativas": 2, "tbas": 0, "inativas": 14, "polo": "SP Brás"}, "12129": {"max_seq": 18, "total": 14, "ativas": 5, "tbas": 0, "inativas": 9, "polo": "SP Santa Cecilia"}, "12131": {"max_seq": 19, "total": 18, "ativas": 2, "tbas": 0, "inativas": 16, "polo": "SP Liberdade"}, "15135": {"max_seq": 5, "total": 6, "ativas": 6, "tbas": 0, "inativas": 0, "polo": "SP 25 de Março"}, "11660": {"max_seq": 11, "total": 12, "ativas": 0, "tbas": 0, "inativas": 12, "polo": "PR Foz do Iguaçu"}, "12010": {"max_seq": 9, "total": 10, "ativas": 2, "tbas": 1, "inativas": 7, "polo": "PR Toledo"}, "12016": {"max_seq": 11, "total": 12, "ativas": 2, "tbas": 0, "inativas": 10, "polo": "PR Cascavel"}, "12017": {"max_seq": 10, "total": 11, "ativas": 1, "tbas": 0, "inativas": 10, "polo": "PR Umuarama"}, "12023": {"max_seq": 12, "total": 12, "ativas": 1, "tbas": 0, "inativas": 11, "polo": "PR Pato Branco"}, "11657": {"max_seq": 12, "total": 12, "ativas": 2, "tbas": 0, "inativas": 10, "polo": "PR Santa Felicidade"}, "11658": {"max_seq": 13, "total": 14, "ativas": 4, "tbas": 0, "inativas": 10, "polo": "PR Centro Curitiba"}, "11659": {"max_seq": 13, "total": 14, "ativas": 3, "tbas": 0, "inativas": 11, "polo": "PR Xaxim"}, "12590": {"max_seq": 9, "total": 10, "ativas": 2, "tbas": 0, "inativas": 8, "polo": "PR Pinheirinho"}, "15093": {"max_seq": 8, "total": 9, "ativas": 7, "tbas": 0, "inativas": 2, "polo": "PR CWB Portão"}, "15139": {"max_seq": 3, "total": 4, "ativas": 4, "tbas": 0, "inativas": 0, "polo": "PR Água Verde"}, "15242": {"max_seq": 10, "total": 11, "ativas": 6, "tbas": 4, "inativas": 1, "polo": "PR CWB Centro 2"}, "11899": {"max_seq": 18, "total": 13, "ativas": 1, "tbas": 1, "inativas": 11, "polo": "PR Maringá"}, "11900": {"max_seq": 11, "total": 12, "ativas": 2, "tbas": 0, "inativas": 10, "polo": "PR Londrina"}, "12037": {"max_seq": 10, "total": 10, "ativas": 0, "tbas": 0, "inativas": 10, "polo": "PR Arapongas"}, "12548": {"max_seq": 10, "total": 11, "ativas": 1, "tbas": 0, "inativas": 10, "polo": "PR Cambé"}, "12554": {"max_seq": 10, "total": 11, "ativas": 2, "tbas": 0, "inativas": 9, "polo": "PR Paiçandu"}, "15106": {"max_seq": 1, "total": 1, "ativas": 1, "tbas": 0, "inativas": 0, "polo": "SP Coord2"}, "11596": {"max_seq": 11, "total": 12, "ativas": 0, "tbas": 0, "inativas": 12, "polo": "SP Trianon Masp"}, "11601": {"max_seq": 10, "total": 11, "ativas": 1, "tbas": 0, "inativas": 10, "polo": "SP Vila Romana"}, "11894": {"max_seq": 22, "total": 21, "ativas": 1, "tbas": 0, "inativas": 20, "polo": "SP Moema"}, "11591": {"max_seq": 18, "total": 18, "ativas": 1, "tbas": 0, "inativas": 17, "polo": "SP Santo Amaro"}, "11602": {"max_seq": 20, "total": 19, "ativas": 1, "tbas": 0, "inativas": 18, "polo": "SP Butantã"}, "11893": {"max_seq": 16, "total": 16, "ativas": 2, "tbas": 0, "inativas": 14, "polo": "SP Chácara Santo Antonio"}, "12130": {"max_seq": 9, "total": 10, "ativas": 0, "tbas": 0, "inativas": 10, "polo": "SP Capão Redondo"}, "13080": {"max_seq": 16, "total": 15, "ativas": 2, "tbas": 0, "inativas": 13, "polo": "SP Brooklin"}, "11910": {"max_seq": 21, "total": 18, "ativas": 2, "tbas": 0, "inativas": 16, "polo": "SP Santo André"}, "11911": {"max_seq": 21, "total": 14, "ativas": 4, "tbas": 0, "inativas": 10, "polo": "SP SBC"}, "12002": {"max_seq": 11, "total": 11, "ativas": 2, "tbas": 0, "inativas": 9, "polo": "SP Diadema"}, "12561": {"max_seq": 21, "total": 17, "ativas": 2, "tbas": 0, "inativas": 15, "polo": "SP São Caetano"}, "15129": {"max_seq": 3, "total": 4, "ativas": 4, "tbas": 0, "inativas": 0, "polo": "SP ABC"}, "15259": {"max_seq": 10, "total": 11, "ativas": 5, "tbas": 2, "inativas": 4, "polo": "SP Santo André 2"}, "13826": {"max_seq": 1, "total": 2, "ativas": 0, "tbas": 0, "inativas": 2, "polo": "Santa Catarina 1 Sr"}, "14052": {"max_seq": 0, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "-"}, "13824": {"max_seq": 99, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "SP Vale Histórico LT"}, "11914": {"max_seq": 26, "total": 18, "ativas": 2, "tbas": 0, "inativas": 16, "polo": "SP Taubaté"}, "11916": {"max_seq": 9, "total": 10, "ativas": 0, "tbas": 0, "inativas": 10, "polo": "SP Bragança Pta"}, "11918": {"max_seq": 19, "total": 16, "ativas": 2, "tbas": 0, "inativas": 14, "polo": "SP SJ dos Campos"}, "12541": {"max_seq": 13, "total": 13, "ativas": 4, "tbas": 0, "inativas": 9, "polo": "SP Cruzeiro"}, "12546": {"max_seq": 16, "total": 16, "ativas": 2, "tbas": 0, "inativas": 14, "polo": "SP Vale Sul"}, "12578": {"max_seq": 9, "total": 10, "ativas": 0, "tbas": 0, "inativas": 10, "polo": "SP Atibaia"}, "14262": {"max_seq": 9, "total": 10, "ativas": 6, "tbas": 0, "inativas": 4, "polo": "SP Campos do Jordão"}, "15131": {"max_seq": 9, "total": 10, "ativas": 10, "tbas": 0, "inativas": 0, "polo": "SP Aparecida"}, "14041": {"max_seq": 99, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "SP Litoral"}, "11746": {"max_seq": 18, "total": 18, "ativas": 3, "tbas": 0, "inativas": 15, "polo": "SP Ubatuba"}, "11909": {"max_seq": 24, "total": 17, "ativas": 5, "tbas": 3, "inativas": 9, "polo": "SP São Vicente"}, "12039": {"max_seq": 15, "total": 15, "ativas": 2, "tbas": 1, "inativas": 12, "polo": "SP Maresias"}, "12042": {"max_seq": 18, "total": 15, "ativas": 2, "tbas": 0, "inativas": 13, "polo": "SP Riviera"}, "12153": {"max_seq": 19, "total": 15, "ativas": 5, "tbas": 0, "inativas": 10, "polo": "SP Santos Boqueirão"}, "12535": {"max_seq": 17, "total": 16, "ativas": 7, "tbas": 0, "inativas": 9, "polo": "SP Cubatão"}, "15086": {"max_seq": 6, "total": 7, "ativas": 7, "tbas": 0, "inativas": 0, "polo": "SP Caraguatatuba"}, "11579": {"max_seq": 12, "total": 12, "ativas": 2, "tbas": 0, "inativas": 10, "polo": "SP Guarulhos"}, "11586": {"max_seq": 9, "total": 10, "ativas": 2, "tbas": 0, "inativas": 8, "polo": "SP Itaquera"}, "11587": {"max_seq": 8, "total": 9, "ativas": 1, "tbas": 0, "inativas": 8, "polo": "SP São Miguel Pta"}, "11589": {"max_seq": 9, "total": 10, "ativas": 1, "tbas": 0, "inativas": 9, "polo": "SP Penha"}, "11590": {"max_seq": 19, "total": 17, "ativas": 1, "tbas": 0, "inativas": 16, "polo": "SP Tatuapé"}, "11598": {"max_seq": 22, "total": 19, "ativas": 5, "tbas": 0, "inativas": 14, "polo": "SP Vila Maria"}, "11645": {"max_seq": 19, "total": 13, "ativas": 2, "tbas": 0, "inativas": 11, "polo": "SP São Mateus"}, "11646": {"max_seq": 13, "total": 13, "ativas": 3, "tbas": 0, "inativas": 10, "polo": "SP Itaquá"}, "12020": {"max_seq": 22, "total": 19, "ativas": 2, "tbas": 0, "inativas": 17, "polo": "SP Mogi das Cruzes"}, "11599": {"max_seq": 20, "total": 16, "ativas": 4, "tbas": 0, "inativas": 12, "polo": "SP Casa Verde"}, "11898": {"max_seq": 18, "total": 13, "ativas": 1, "tbas": 0, "inativas": 12, "polo": "SP Jaguaré"}, "12043": {"max_seq": 22, "total": 22, "ativas": 6, "tbas": 1, "inativas": 15, "polo": "SP Osasco"}, "12044": {"max_seq": 18, "total": 16, "ativas": 4, "tbas": 0, "inativas": 12, "polo": "SP Barueri"}, "12598": {"max_seq": 19, "total": 19, "ativas": 3, "tbas": 0, "inativas": 16, "polo": "SP Carapicuíba"}, "15244": {"max_seq": 10, "total": 11, "ativas": 7, "tbas": 4, "inativas": 0, "polo": "SP Alphaville 2"}, "15246": {"max_seq": 10, "total": 11, "ativas": 2, "tbas": 4, "inativas": 5, "polo": "SP Osasco 2"}, "13818": {"max_seq": 92, "total": 2, "ativas": 1, "tbas": 0, "inativas": 1, "polo": "Gerencia PA1"}, "14050": {"max_seq": 99, "total": 1, "ativas": 1, "tbas": 0, "inativas": 0, "polo": "RJ Coord2"}, "14051": {"max_seq": 0, "total": 1, "ativas": 1, "tbas": 0, "inativas": 0, "polo": "MG Minas Gerais"}, "11974": {"max_seq": 12, "total": 13, "ativas": 4, "tbas": 1, "inativas": 8, "polo": "RJ Cabo Frio"}, "11975": {"max_seq": 10, "total": 11, "ativas": 1, "tbas": 0, "inativas": 10, "polo": "RJ Campos dos Goytacazes"}, "11976": {"max_seq": 11, "total": 12, "ativas": 2, "tbas": 0, "inativas": 10, "polo": "RJ Macaé"}, "11996": {"max_seq": 15, "total": 16, "ativas": 6, "tbas": 0, "inativas": 10, "polo": "RJ Niterói"}, "12004": {"max_seq": 11, "total": 11, "ativas": 6, "tbas": 0, "inativas": 5, "polo": "RJ São Gonçalo"}, "12568": {"max_seq": 12, "total": 12, "ativas": 4, "tbas": 0, "inativas": 8, "polo": "RJ Itaboraí"}, "12600": {"max_seq": 12, "total": 12, "ativas": 5, "tbas": 0, "inativas": 7, "polo": "RJ Maricá"}, "15204": {"max_seq": 6, "total": 7, "ativas": 7, "tbas": 0, "inativas": 0, "polo": "RJ Icaraí"}, "11665": {"max_seq": 11, "total": 12, "ativas": 0, "tbas": 1, "inativas": 11, "polo": "RJ Jacarepaguá"}, "11667": {"max_seq": 12, "total": 12, "ativas": 1, "tbas": 0, "inativas": 11, "polo": "RJ Nova Iguaçu"}, "11891": {"max_seq": 10, "total": 11, "ativas": 4, "tbas": 0, "inativas": 7, "polo": "RJ Paciência"}, "12563": {"max_seq": 12, "total": 13, "ativas": 4, "tbas": 0, "inativas": 9, "polo": "RJ Campo Grande"}, "12574": {"max_seq": 12, "total": 13, "ativas": 2, "tbas": 1, "inativas": 10, "polo": "RJ Barra da Tijuca"}, "12593": {"max_seq": 10, "total": 11, "ativas": 2, "tbas": 0, "inativas": 9, "polo": "RJ Recreio dos Bandeirantes"}, "12597": {"max_seq": 10, "total": 11, "ativas": 3, "tbas": 0, "inativas": 8, "polo": "RJ Nilópolis"}, "15236": {"max_seq": 10, "total": 11, "ativas": 10, "tbas": 1, "inativas": 0, "polo": "RJ Guaratiba"}, "11664": {"max_seq": 12, "total": 10, "ativas": 1, "tbas": 0, "inativas": 9, "polo": "RJ Nilo Peçanha"}, "11666": {"max_seq": 91, "total": 14, "ativas": 4, "tbas": 0, "inativas": 10, "polo": "RJ Del Castilho"}, "11892": {"max_seq": 12, "total": 11, "ativas": 1, "tbas": 0, "inativas": 10, "polo": "RJ Duque de Caxias"}, "11907": {"max_seq": 18, "total": 16, "ativas": 3, "tbas": 0, "inativas": 13, "polo": "RJ Volta Redonda"}, "12005": {"max_seq": 10, "total": 11, "ativas": 4, "tbas": 0, "inativas": 7, "polo": "RJ Madureira"}, "12556": {"max_seq": 18, "total": 16, "ativas": 8, "tbas": 0, "inativas": 8, "polo": "RJ Meio da Serra"}, "15238": {"max_seq": 8, "total": 9, "ativas": 5, "tbas": 4, "inativas": 0, "polo": "RJ Resende"}, "11890": {"max_seq": 19, "total": 17, "ativas": 6, "tbas": 0, "inativas": 11, "polo": "PA Interior"}, "11961": {"max_seq": 6, "total": 7, "ativas": 0, "tbas": 0, "inativas": 7, "polo": "AP Macapá"}, "11981": {"max_seq": 10, "total": 11, "ativas": 3, "tbas": 0, "inativas": 8, "polo": "RR Boa Vista"}, "12591": {"max_seq": 15, "total": 15, "ativas": 4, "tbas": 0, "inativas": 11, "polo": "PA Batista Campos"}, "15145": {"max_seq": 10, "total": 11, "ativas": 10, "tbas": 0, "inativas": 1, "polo": "PA Belém 2"}, "11887": {"max_seq": 13, "total": 14, "ativas": 6, "tbas": 0, "inativas": 8, "polo": "AM Centro"}, "11980": {"max_seq": 21, "total": 16, "ativas": 6, "tbas": 0, "inativas": 10, "polo": "RO Porto Velho"}, "11995": {"max_seq": 15, "total": 14, "ativas": 3, "tbas": 0, "inativas": 11, "polo": "TO Palmas"}, "12605": {"max_seq": 14, "total": 15, "ativas": 4, "tbas": 0, "inativas": 11, "polo": "AM Rio Negro"}, "11652": {"max_seq": 10, "total": 11, "ativas": 2, "tbas": 0, "inativas": 9, "polo": "MG Centro BH"}, "11653": {"max_seq": 11, "total": 12, "ativas": 2, "tbas": 0, "inativas": 10, "polo": "MG Savassi"}, "11654": {"max_seq": 11, "total": 12, "ativas": 4, "tbas": 0, "inativas": 8, "polo": "MG Barreiro"}, "11655": {"max_seq": 10, "total": 11, "ativas": 3, "tbas": 0, "inativas": 8, "polo": "MG Contagem"}, "12549": {"max_seq": 14, "total": 12, "ativas": 2, "tbas": 0, "inativas": 10, "polo": "MG Pedro Leopoldo"}, "12607": {"max_seq": 11, "total": 12, "ativas": 5, "tbas": 0, "inativas": 7, "polo": "MG Coqueiros"}, "11962": {"max_seq": 12, "total": 13, "ativas": 2, "tbas": 0, "inativas": 11, "polo": "ES Cachoeiro do Itapemerim"}, "11963": {"max_seq": 10, "total": 11, "ativas": 2, "tbas": 0, "inativas": 9, "polo": "MG Ipatinga"}, "12145": {"max_seq": 11, "total": 12, "ativas": 3, "tbas": 0, "inativas": 9, "polo": "ES Praia do Canto"}, "12146": {"max_seq": 10, "total": 11, "ativas": 2, "tbas": 0, "inativas": 9, "polo": "ES Vila Velha"}, "12479": {"max_seq": 9, "total": 10, "ativas": 1, "tbas": 0, "inativas": 9, "polo": "MG Governador Valadares"}, "12490": {"max_seq": 7, "total": 8, "ativas": 0, "tbas": 0, "inativas": 8, "polo": "ES Linhares"}, "11905": {"max_seq": 12, "total": 13, "ativas": 2, "tbas": 0, "inativas": 11, "polo": "MG Uberlândia"}, "11966": {"max_seq": 11, "total": 12, "ativas": 3, "tbas": 0, "inativas": 9, "polo": "MG Uberaba"}, "12577": {"max_seq": 10, "total": 11, "ativas": 4, "tbas": 0, "inativas": 7, "polo": "MG Parque do Sabiá"}, "15165": {"max_seq": 10, "total": 11, "ativas": 4, "tbas": 2, "inativas": 5, "polo": "MG Triângulo Mineiro"}, "13817": {"max_seq": 99, "total": 1, "ativas": 1, "tbas": 0, "inativas": 0, "polo": "GO Cerrado"}, "14043": {"max_seq": 99, "total": 1, "ativas": 0, "tbas": 1, "inativas": 0, "polo": "DF Capital"}, "11816": {"max_seq": 13, "total": 13, "ativas": 3, "tbas": 0, "inativas": 10, "polo": "MT Cuiabá"}, "11817": {"max_seq": 15, "total": 16, "ativas": 2, "tbas": 0, "inativas": 14, "polo": "MS Campo Grande"}, "12487": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "MT Sinop"}, "12544": {"max_seq": 16, "total": 16, "ativas": 2, "tbas": 0, "inativas": 14, "polo": "MT Parque Cuiabá"}, "12564": {"max_seq": 16, "total": 17, "ativas": 5, "tbas": 0, "inativas": 12, "polo": "MS Terenos"}, "14500": {"max_seq": 8, "total": 9, "ativas": 3, "tbas": 0, "inativas": 6, "polo": "MT Tangará da Serra"}, "15095": {"max_seq": 8, "total": 9, "ativas": 9, "tbas": 0, "inativas": 0, "polo": "MS Pioneiros"}, "11649": {"max_seq": 8, "total": 9, "ativas": 1, "tbas": 0, "inativas": 8, "polo": "GO Setor Oeste"}, "11650": {"max_seq": 11, "total": 11, "ativas": 1, "tbas": 0, "inativas": 10, "polo": "GO Parque Amazonia"}, "11651": {"max_seq": 11, "total": 12, "ativas": 4, "tbas": 0, "inativas": 8, "polo": "GO Setor Bueno"}, "12007": {"max_seq": 11, "total": 12, "ativas": 6, "tbas": 0, "inativas": 6, "polo": "GO Anápolis"}, "12021": {"max_seq": 8, "total": 9, "ativas": 0, "tbas": 0, "inativas": 9, "polo": "GO Rio Verde"}, "12478": {"max_seq": 12, "total": 12, "ativas": 1, "tbas": 0, "inativas": 11, "polo": "GO Caldas Novas"}, "12540": {"max_seq": 11, "total": 11, "ativas": 4, "tbas": 0, "inativas": 7, "polo": "GO Senador Canedo"}, "12567": {"max_seq": 10, "total": 10, "ativas": 3, "tbas": 0, "inativas": 7, "polo": "GO Trindade"}, "11647": {"max_seq": 13, "total": 13, "ativas": 2, "tbas": 0, "inativas": 11, "polo": "DF Asa Norte"}, "11648": {"max_seq": 16, "total": 15, "ativas": 2, "tbas": 0, "inativas": 13, "polo": "DF Asa Sul"}, "11745": {"max_seq": 11, "total": 12, "ativas": 3, "tbas": 0, "inativas": 9, "polo": "DF Taguatinga"}, "12013": {"max_seq": 14, "total": 11, "ativas": 1, "tbas": 0, "inativas": 10, "polo": "DF Gama"}, "12575": {"max_seq": 10, "total": 11, "ativas": 1, "tbas": 0, "inativas": 10, "polo": "DF Formosa"}, "12586": {"max_seq": 11, "total": 10, "ativas": 2, "tbas": 0, "inativas": 8, "polo": "DF Luziania"}, "15169": {"max_seq": 8, "total": 9, "ativas": 8, "tbas": 0, "inativas": 1, "polo": "DF Sobradinho"}, "13822": {"max_seq": 99, "total": 1, "ativas": 0, "tbas": 1, "inativas": 0, "polo": "RJ Zona Oeste"}, "11662": {"max_seq": 12, "total": 12, "ativas": 2, "tbas": 0, "inativas": 10, "polo": "RJ Botafogo"}, "11663": {"max_seq": 91, "total": 14, "ativas": 4, "tbas": 0, "inativas": 10, "polo": "RJ Rio Branco"}, "12537": {"max_seq": 11, "total": 12, "ativas": 4, "tbas": 1, "inativas": 7, "polo": "RJ Flamengo"}, "12547": {"max_seq": 12, "total": 12, "ativas": 4, "tbas": 0, "inativas": 8, "polo": "RJ São Cristóvão"}, "12573": {"max_seq": 11, "total": 12, "ativas": 3, "tbas": 0, "inativas": 9, "polo": "RJ Tijuca"}, "15198": {"max_seq": 10, "total": 11, "ativas": 5, "tbas": 4, "inativas": 2, "polo": "RJ Ipanema"}, "15200": {"max_seq": 10, "total": 11, "ativas": 7, "tbas": 1, "inativas": 3, "polo": "RJ Copacabana"}, "15202": {"max_seq": 10, "total": 11, "ativas": 11, "tbas": 0, "inativas": 0, "polo": "RJ Maracanã"}, "15234": {"max_seq": 10, "total": 11, "ativas": 11, "tbas": 0, "inativas": 0, "polo": "RJ Leblon"}, "11656": {"max_seq": 91, "total": 16, "ativas": 3, "tbas": 0, "inativas": 13, "polo": "MG Venda Nova"}, "11904": {"max_seq": 12, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "MG Juiz de Fora"}, "11964": {"max_seq": 14, "total": 9, "ativas": 0, "tbas": 0, "inativas": 9, "polo": "MG Pouso Alegre"}, "11965": {"max_seq": 11, "total": 11, "ativas": 1, "tbas": 0, "inativas": 10, "polo": "MG Varginha"}, "12484": {"max_seq": 14, "total": 14, "ativas": 1, "tbas": 1, "inativas": 12, "polo": "MG Sete Lagoas"}, "12555": {"max_seq": 10, "total": 11, "ativas": 1, "tbas": 0, "inativas": 10, "polo": "MG Nova Lima"}, "12603": {"max_seq": 11, "total": 12, "ativas": 2, "tbas": 0, "inativas": 10, "polo": "MG Matias Barbosa"}, "15163": {"max_seq": 9, "total": 10, "ativas": 10, "tbas": 0, "inativas": 0, "polo": "MG Betim"}, "14046": {"max_seq": 99, "total": 1, "ativas": 1, "tbas": 0, "inativas": 0, "polo": "BA Bahia"}, "14048": {"max_seq": 99, "total": 2, "ativas": 1, "tbas": 1, "inativas": 0, "polo": "Gerencia Alagoas"}, "14054": {"max_seq": 0, "total": 1, "ativas": 1, "tbas": 0, "inativas": 0, "polo": "Gerencia PE1"}, "13819": {"max_seq": 99, "total": 2, "ativas": 0, "tbas": 1, "inativas": 1, "polo": "Coord Paraíba"}, "11812": {"max_seq": 13, "total": 14, "ativas": 5, "tbas": 0, "inativas": 9, "polo": "CE Aldeota"}, "11814": {"max_seq": 12, "total": 13, "ativas": 2, "tbas": 0, "inativas": 11, "polo": "CE Farias Brito"}, "11815": {"max_seq": 11, "total": 12, "ativas": 5, "tbas": 0, "inativas": 7, "polo": "CE Parangaba"}, "12000": {"max_seq": 13, "total": 12, "ativas": 3, "tbas": 0, "inativas": 9, "polo": "CE Juazeiro"}, "12322": {"max_seq": 11, "total": 11, "ativas": 4, "tbas": 0, "inativas": 7, "polo": "CE Jóquei Club"}, "12323": {"max_seq": 7, "total": 8, "ativas": 0, "tbas": 0, "inativas": 8, "polo": "CE Sobral"}, "12531": {"max_seq": 12, "total": 13, "ativas": 4, "tbas": 0, "inativas": 9, "polo": "CE Eusébio"}, "11808": {"max_seq": 15, "total": 15, "ativas": 3, "tbas": 1, "inativas": 11, "polo": "PE Boa Vista"}, "11809": {"max_seq": 15, "total": 14, "ativas": 2, "tbas": 1, "inativas": 11, "polo": "PE Jaboatão"}, "11810": {"max_seq": 12, "total": 13, "ativas": 4, "tbas": 0, "inativas": 9, "polo": "PE Olinda"}, "11972": {"max_seq": 11, "total": 12, "ativas": 3, "tbas": 0, "inativas": 9, "polo": "PE Luiz Gonzaga"}, "11973": {"max_seq": 11, "total": 12, "ativas": 1, "tbas": 0, "inativas": 11, "polo": "PE Petrolina"}, "12580": {"max_seq": 14, "total": 12, "ativas": 2, "tbas": 0, "inativas": 10, "polo": "PE Iputinga"}, "12589": {"max_seq": 13, "total": 14, "ativas": 5, "tbas": 1, "inativas": 8, "polo": "PE São Lourenço da Mata"}, "15279": {"max_seq": 5, "total": 6, "ativas": 1, "tbas": 5, "inativas": 0, "polo": "PE Mata Norte"}, "11822": {"max_seq": 14, "total": 15, "ativas": 3, "tbas": 0, "inativas": 12, "polo": "MA São Luis"}, "11908": {"max_seq": 14, "total": 15, "ativas": 3, "tbas": 0, "inativas": 12, "polo": "PB João Pessoa"}, "11969": {"max_seq": 13, "total": 12, "ativas": 4, "tbas": 0, "inativas": 8, "polo": "PB Campina Grande"}, "12022": {"max_seq": 11, "total": 12, "ativas": 0, "tbas": 1, "inativas": 11, "polo": "MA Imperatriz"}, "12570": {"max_seq": 15, "total": 16, "ativas": 4, "tbas": 0, "inativas": 12, "polo": "PB Jampa"}, "12606": {"max_seq": 13, "total": 14, "ativas": 3, "tbas": 0, "inativas": 11, "polo": "MA Grande Ilha"}, "15078": {"max_seq": 10, "total": 11, "ativas": 11, "tbas": 0, "inativas": 0, "polo": "PB Cabo Branco"}, "11775": {"max_seq": 15, "total": 13, "ativas": 5, "tbas": 1, "inativas": 7, "polo": "BA Barra"}, "11776": {"max_seq": 14, "total": 14, "ativas": 4, "tbas": 0, "inativas": 10, "polo": "BA São Caetano"}, "11788": {"max_seq": 14, "total": 15, "ativas": 3, "tbas": 0, "inativas": 12, "polo": "BA Rio Vermelho"}, "11791": {"max_seq": 13, "total": 12, "ativas": 2, "tbas": 0, "inativas": 10, "polo": "BA Linha Verde"}, "11906": {"max_seq": 15, "total": 15, "ativas": 5, "tbas": 0, "inativas": 10, "polo": "BA Feira"}, "11998": {"max_seq": 16, "total": 16, "ativas": 5, "tbas": 0, "inativas": 11, "polo": "BA Vitória da Conquista"}, "11999": {"max_seq": 10, "total": 11, "ativas": 1, "tbas": 0, "inativas": 10, "polo": "BA Porto Seguro"}, "12559": {"max_seq": 12, "total": 13, "ativas": 3, "tbas": 0, "inativas": 10, "polo": "BA Itapuã"}, "13100": {"max_seq": 11, "total": 12, "ativas": 5, "tbas": 0, "inativas": 7, "polo": "BA Morro de São Paulo"}, "15250": {"max_seq": 10, "total": 11, "ativas": 11, "tbas": 0, "inativas": 0, "polo": "BA Paripe"}, "11818": {"max_seq": 10, "total": 11, "ativas": 3, "tbas": 0, "inativas": 8, "polo": "SE Aracaju"}, "11820": {"max_seq": 91, "total": 15, "ativas": 6, "tbas": 0, "inativas": 9, "polo": "AL Maceió"}, "12534": {"max_seq": 12, "total": 13, "ativas": 3, "tbas": 0, "inativas": 10, "polo": "AL Jatiúca"}, "12542": {"max_seq": 10, "total": 11, "ativas": 2, "tbas": 0, "inativas": 9, "polo": "SE Coroa do Meio"}, "13097": {"max_seq": 13, "total": 13, "ativas": 1, "tbas": 0, "inativas": 12, "polo": "AL Arapiraca"}, "15072": {"max_seq": 10, "total": 11, "ativas": 10, "tbas": 0, "inativas": 1, "polo": "AL Ponta Verde"}, "15248": {"max_seq": 6, "total": 7, "ativas": 0, "tbas": 7, "inativas": 0, "polo": "AL Penedo"}, "14202": {"max_seq": 99, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "PI Piauí"}, "11819": {"max_seq": 12, "total": 12, "ativas": 2, "tbas": 0, "inativas": 10, "polo": "PI Teresina"}, "11955": {"max_seq": 14, "total": 15, "ativas": 1, "tbas": 1, "inativas": 13, "polo": "RN Cidade Alta"}, "11956": {"max_seq": 14, "total": 15, "ativas": 4, "tbas": 0, "inativas": 11, "polo": "RN Capim Macio"}, "12024": {"max_seq": 13, "total": 13, "ativas": 3, "tbas": 0, "inativas": 10, "polo": "RN Mossoró"}, "12599": {"max_seq": 15, "total": 16, "ativas": 4, "tbas": 2, "inativas": 10, "polo": "PI Timon"}, "15076": {"max_seq": 10, "total": 11, "ativas": 11, "tbas": 0, "inativas": 0, "polo": "RN Potiguar"}, "15254": {"max_seq": 7, "total": 8, "ativas": 2, "tbas": 6, "inativas": 0, "polo": "PI Parnaíba"}, "11668": {"max_seq": 9, "total": 10, "ativas": 1, "tbas": 0, "inativas": 9, "polo": "RS Tramandaí"}, "11669": {"max_seq": 91, "total": 14, "ativas": 1, "tbas": 0, "inativas": 13, "polo": "RS Centro POA Norte"}, "11978": {"max_seq": 16, "total": 15, "ativas": 2, "tbas": 0, "inativas": 13, "polo": "RS Capão da Canoa"}, "12011": {"max_seq": 12, "total": 13, "ativas": 2, "tbas": 1, "inativas": 10, "polo": "RS POA Sul"}, "12539": {"max_seq": 16, "total": 16, "ativas": 3, "tbas": 0, "inativas": 13, "polo": "RS Pq Farroupilha"}, "12551": {"max_seq": 11, "total": 12, "ativas": 3, "tbas": 0, "inativas": 9, "polo": "RS Moinhos"}, "11979": {"max_seq": 12, "total": 12, "ativas": 1, "tbas": 0, "inativas": 11, "polo": "RS Pelotas"}, "12006": {"max_seq": 10, "total": 11, "ativas": 1, "tbas": 0, "inativas": 10, "polo": "RS Santana do Livramento"}, "12025": {"max_seq": 9, "total": 10, "ativas": 0, "tbas": 0, "inativas": 10, "polo": "RS Passo Fundo"}, "12027": {"max_seq": 12, "total": 13, "ativas": 3, "tbas": 0, "inativas": 10, "polo": "RS Santa Maria"}, "13103": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 1, "inativas": 10, "polo": "RS Lajeado"}, "11661": {"max_seq": 11, "total": 12, "ativas": 5, "tbas": 0, "inativas": 7, "polo": "PR São José dos Pinhais"}, "11902": {"max_seq": 12, "total": 13, "ativas": 1, "tbas": 0, "inativas": 12, "polo": "SC Itajaí"}, "11903": {"max_seq": 16, "total": 17, "ativas": 4, "tbas": 1, "inativas": 12, "polo": "SC Joinville"}, "12033": {"max_seq": 9, "total": 9, "ativas": 2, "tbas": 0, "inativas": 7, "polo": "PR Paranaguá"}, "12543": {"max_seq": 10, "total": 11, "ativas": 2, "tbas": 0, "inativas": 9, "polo": "PR Pinhais"}, "12553": {"max_seq": 9, "total": 10, "ativas": 1, "tbas": 0, "inativas": 9, "polo": "SC Rio do Sul"}, "12560": {"max_seq": 15, "total": 16, "ativas": 2, "tbas": 1, "inativas": 13, "polo": "SC Balneário Camboriú"}, "12584": {"max_seq": 11, "total": 12, "ativas": 1, "tbas": 0, "inativas": 11, "polo": "SC Jaraguá do Sul"}, "12595": {"max_seq": 13, "total": 13, "ativas": 4, "tbas": 0, "inativas": 9, "polo": "PR Campo Largo"}, "13828": {"max_seq": 99, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "RS Coord1 LT"}, "11670": {"max_seq": 11, "total": 12, "ativas": 2, "tbas": 0, "inativas": 10, "polo": "RS Gravataí"}, "11671": {"max_seq": 11, "total": 12, "ativas": 6, "tbas": 0, "inativas": 6, "polo": "RS Novo Hamburgo"}, "11877": {"max_seq": 13, "total": 13, "ativas": 2, "tbas": 0, "inativas": 11, "polo": "RS Caxias do Sul"}, "12029": {"max_seq": 12, "total": 13, "ativas": 1, "tbas": 1, "inativas": 11, "polo": "RS Gramado"}, "12571": {"max_seq": 15, "total": 16, "ativas": 2, "tbas": 1, "inativas": 13, "polo": "RS São Leopoldo"}, "12581": {"max_seq": 11, "total": 12, "ativas": 2, "tbas": 2, "inativas": 8, "polo": "RS Bento Gonçalves"}, "15091": {"max_seq": 7, "total": 8, "ativas": 7, "tbas": 0, "inativas": 1, "polo": "RS Sapucaia"}, "11917": {"max_seq": 11, "total": 12, "ativas": 1, "tbas": 0, "inativas": 11, "polo": "SP Piracicaba"}, "12147": {"max_seq": 13, "total": 14, "ativas": 2, "tbas": 2, "inativas": 10, "polo": "SP Campinas Centro"}, "12148": {"max_seq": 13, "total": 14, "ativas": 3, "tbas": 0, "inativas": 11, "polo": "SP Campinas Vila Rica"}, "12149": {"max_seq": 10, "total": 11, "ativas": 2, "tbas": 1, "inativas": 8, "polo": "SP Sumaré"}, "12532": {"max_seq": 11, "total": 12, "ativas": 3, "tbas": 1, "inativas": 8, "polo": "SP Campinas Cambuí"}, "12585": {"max_seq": 20, "total": 21, "ativas": 4, "tbas": 0, "inativas": 17, "polo": "SP Santa Bárbara"}, "12594": {"max_seq": 9, "total": 10, "ativas": 1, "tbas": 0, "inativas": 9, "polo": "SP Americana"}, "14867": {"max_seq": 8, "total": 9, "ativas": 3, "tbas": 0, "inativas": 6, "polo": "SP Limeira"}, "15252": {"max_seq": 10, "total": 11, "ativas": 4, "tbas": 6, "inativas": 1, "polo": "SP Campinas 2"}, "11919": {"max_seq": 16, "total": 17, "ativas": 5, "tbas": 1, "inativas": 11, "polo": "SP Ribeirão Centro"}, "11985": {"max_seq": 8, "total": 9, "ativas": 2, "tbas": 0, "inativas": 7, "polo": "SP São João da Boa Vista"}, "11987": {"max_seq": 12, "total": 13, "ativas": 4, "tbas": 0, "inativas": 9, "polo": "SP Mogi Guaçu"}, "11989": {"max_seq": 11, "total": 11, "ativas": 4, "tbas": 0, "inativas": 7, "polo": "SP Franca"}, "12152": {"max_seq": 11, "total": 12, "ativas": 1, "tbas": 0, "inativas": 11, "polo": "SP Ribeirão Ipiranga"}, "12611": {"max_seq": 9, "total": 10, "ativas": 2, "tbas": 0, "inativas": 8, "polo": "SP Pirassununga"}, "15256": {"max_seq": 10, "total": 11, "ativas": 3, "tbas": 5, "inativas": 3, "polo": "SP Ribeirão 2"}, "11585": {"max_seq": 91, "total": 12, "ativas": 3, "tbas": 0, "inativas": 9, "polo": "SP Jundiaí"}, "11920": {"max_seq": 14, "total": 15, "ativas": 2, "tbas": 0, "inativas": 13, "polo": "SP Sorocaba"}, "12038": {"max_seq": 9, "total": 10, "ativas": 0, "tbas": 0, "inativas": 10, "polo": "SP Itu"}, "12562": {"max_seq": 11, "total": 12, "ativas": 2, "tbas": 1, "inativas": 9, "polo": "SP Várzea Paulista"}, "12576": {"max_seq": 12, "total": 13, "ativas": 2, "tbas": 1, "inativas": 10, "polo": "SP São Roque"}, "12604": {"max_seq": 8, "total": 9, "ativas": 2, "tbas": 0, "inativas": 7, "polo": "SP Indaiatuba"}, "13104": {"max_seq": 8, "total": 9, "ativas": 1, "tbas": 0, "inativas": 8, "polo": "SP Itapeva"}, "13827": {"max_seq": 99, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "-"}, "11643": {"max_seq": 12, "total": 13, "ativas": 3, "tbas": 0, "inativas": 10, "polo": "SC Florianópolis"}, "11644": {"max_seq": 91, "total": 17, "ativas": 3, "tbas": 0, "inativas": 14, "polo": "SC São José"}, "11901": {"max_seq": 12, "total": 13, "ativas": 4, "tbas": 0, "inativas": 9, "polo": "SC Blumenau"}, "11982": {"max_seq": 15, "total": 16, "ativas": 4, "tbas": 0, "inativas": 12, "polo": "SC Criciúma"}, "11984": {"max_seq": 13, "total": 14, "ativas": 1, "tbas": 0, "inativas": 13, "polo": "SC Chapecó"}, "12015": {"max_seq": 13, "total": 14, "ativas": 3, "tbas": 0, "inativas": 11, "polo": "SC São José Norte"}, "15141": {"max_seq": 8, "total": 9, "ativas": 9, "tbas": 0, "inativas": 0, "polo": "SC Itapema"}, "15143": {"max_seq": 8, "total": 9, "ativas": 9, "tbas": 0, "inativas": 0, "polo": "SC Palhoça "}, "15261": {"max_seq": 10, "total": 11, "ativas": 2, "tbas": 4, "inativas": 5, "polo": "SC Blumenau 2"}, "14264": {"max_seq": 24, "total": 24, "ativas": 16, "tbas": 0, "inativas": 8, "polo": "Centro Oeste Sr"}, "11754": {"max_seq": 10, "total": 8, "ativas": 3, "tbas": 0, "inativas": 5, "polo": "Franquias"}, "14714": {"max_seq": 5, "total": 5, "ativas": 5, "tbas": 0, "inativas": 0, "polo": "Associações"}, "11593": {"max_seq": 21, "total": 20, "ativas": 3, "tbas": 0, "inativas": 17, "polo": "SP Faria Lima"}, "15027": {"max_seq": 20, "total": 20, "ativas": 9, "tbas": 1, "inativas": 10, "polo": "SP Centro1 Sr"}, "14519": {"max_seq": 23, "total": 14, "ativas": 8, "tbas": 3, "inativas": 3, "polo": "SP Brás Sr"}, "14226": {"max_seq": 34, "total": 31, "ativas": 11, "tbas": 0, "inativas": 20, "polo": "PB Altiplano1  Sr"}, "14227": {"max_seq": 42, "total": 29, "ativas": 12, "tbas": 0, "inativas": 17, "polo": "RN Rio Grande do Norte2 Sr"}, "14511": {"max_seq": 22, "total": 20, "ativas": 6, "tbas": 0, "inativas": 14, "polo": "DF Distrito Federal1 Sr"}, "14515": {"max_seq": 27, "total": 31, "ativas": 11, "tbas": 3, "inativas": 17, "polo": "SP Bertioga1 Sr"}, "15190": {"max_seq": 12, "total": 12, "ativas": 10, "tbas": 1, "inativas": 1, "polo": "AL Alagoas1 Sr"}, "15013": {"max_seq": 19, "total": 19, "ativas": 8, "tbas": 2, "inativas": 9, "polo": "SP Barueri1 Sr"}, "15208": {"max_seq": 15, "total": 7, "ativas": 5, "tbas": 2, "inativas": 0, "polo": "SC Blumenau1 Sr"}, "14331": {"max_seq": 19, "total": 20, "ativas": 15, "tbas": 0, "inativas": 5, "polo": "PR Curitiba2 Sr"}, "14517": {"max_seq": 25, "total": 20, "ativas": 11, "tbas": 2, "inativas": 7, "polo": "SP São Carlos1 Sr"}, "14590": {"max_seq": 26, "total": 31, "ativas": 15, "tbas": 0, "inativas": 16, "polo": "SP Campinas1 Sr"}, "15206": {"max_seq": 30, "total": 16, "ativas": 10, "tbas": 4, "inativas": 2, "polo": "ES Vila Velha1 Sr"}, "14228": {"max_seq": 22, "total": 22, "ativas": 10, "tbas": 1, "inativas": 11, "polo": "MG Belo Horizonte1 Sr"}, "14513": {"max_seq": 20, "total": 24, "ativas": 14, "tbas": 1, "inativas": 9, "polo": "RS Gramado1 Sr"}, "12566": {"max_seq": 6, "total": 7, "ativas": 0, "tbas": 0, "inativas": 7, "polo": "ES Cariacica"}, "12770": {"max_seq": 10, "total": 2, "ativas": 0, "tbas": 0, "inativas": 2, "polo": "AM Adrianópolis EXP HC"}, "12028": {"max_seq": 6, "total": 4, "ativas": 0, "tbas": 0, "inativas": 4, "polo": "RS Lajeado"}, "12533": {"max_seq": 11, "total": 12, "ativas": 0, "tbas": 0, "inativas": 12, "polo": "ES Serra"}, "11888": {"max_seq": 11, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "AM Adrianópolis"}, "12558": {"max_seq": 6, "total": 7, "ativas": 0, "tbas": 0, "inativas": 7, "polo": "GO Cidade Vera Cruz"}, "12735": {"max_seq": 6, "total": 2, "ativas": 0, "tbas": 0, "inativas": 2, "polo": "SP São Vicente EXP HC"}, "12734": {"max_seq": 2, "total": 2, "ativas": 0, "tbas": 0, "inativas": 2, "polo": "SP Santa Ifigênia EXP HC"}, "11592": {"max_seq": 91, "total": 9, "ativas": 0, "tbas": 0, "inativas": 9, "polo": "SP Jabaquara"}, "12012": {"max_seq": 7, "total": 6, "ativas": 0, "tbas": 0, "inativas": 6, "polo": "MG Alípio de Melo"}, "12026": {"max_seq": 6, "total": 7, "ativas": 0, "tbas": 0, "inativas": 7, "polo": "RS Ijuí"}, "12752": {"max_seq": 1, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "RS Centro POA Norte EXP HC"}, "12569": {"max_seq": 6, "total": 6, "ativas": 0, "tbas": 0, "inativas": 6, "polo": "RJ Araruama"}, "12757": {"max_seq": 4, "total": 2, "ativas": 0, "tbas": 0, "inativas": 2, "polo": "SP Paulista EXP HC"}, "12772": {"max_seq": 4, "total": 5, "ativas": 0, "tbas": 0, "inativas": 5, "polo": "RO Ji-Paraná"}, "12787": {"max_seq": 3, "total": 3, "ativas": 0, "tbas": 0, "inativas": 3, "polo": "SC Chapecó EXP HC"}, "12018": {"max_seq": 20, "total": 10, "ativas": 0, "tbas": 0, "inativas": 10, "polo": "SP Batatais"}, "12040": {"max_seq": 2, "total": 2, "ativas": 0, "tbas": 0, "inativas": 2, "polo": "PA Castanhal"}, "12481": {"max_seq": 2, "total": 2, "ativas": 0, "tbas": 0, "inativas": 2, "polo": "RJ Nova Friburgo"}, "12759": {"max_seq": 9, "total": 4, "ativas": 0, "tbas": 0, "inativas": 4, "polo": "RJ Macaé EXP HC"}, "11600": {"max_seq": 8, "total": 9, "ativas": 0, "tbas": 0, "inativas": 9, "polo": "SP Pirituba"}, "12583": {"max_seq": 8, "total": 9, "ativas": 0, "tbas": 0, "inativas": 9, "polo": "PR Agua Verde"}, "11811": {"max_seq": 6, "total": 5, "ativas": 0, "tbas": 0, "inativas": 5, "polo": "PE San Martin"}, "12324": {"max_seq": 9, "total": 7, "ativas": 0, "tbas": 0, "inativas": 7, "polo": "BA Calçada"}, "12008": {"max_seq": 9, "total": 9, "ativas": 0, "tbas": 0, "inativas": 9, "polo": "MS Dourados"}, "12961": {"max_seq": 1, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "RS Santana do Livramento EXP HC"}, "11912": {"max_seq": 6, "total": 7, "ativas": 0, "tbas": 0, "inativas": 7, "polo": "SP Suzano"}, "11896": {"max_seq": 8, "total": 7, "ativas": 0, "tbas": 0, "inativas": 7, "polo": "SP São Lucas"}, "11595": {"max_seq": 8, "total": 7, "ativas": 0, "tbas": 0, "inativas": 7, "polo": "SP Socorro"}, "11597": {"max_seq": 20, "total": 10, "ativas": 0, "tbas": 0, "inativas": 10, "polo": "SP Santana"}, "11823": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "PA Marabá"}, "12579": {"max_seq": 6, "total": 7, "ativas": 0, "tbas": 0, "inativas": 7, "polo": "MG Sabará"}, "12736": {"max_seq": 10, "total": 2, "ativas": 0, "tbas": 0, "inativas": 2, "polo": "PE Olinda EXP HC"}, "11897": {"max_seq": 19, "total": 16, "ativas": 0, "tbas": 0, "inativas": 16, "polo": "SP Vila Leopoldina"}, "12744": {"max_seq": 9, "total": 2, "ativas": 0, "tbas": 0, "inativas": 2, "polo": "SP Faria Lima EXP HC"}, "11889": {"max_seq": 15, "total": 13, "ativas": 0, "tbas": 0, "inativas": 13, "polo": "PA Campina"}, "12764": {"max_seq": 7, "total": 4, "ativas": 0, "tbas": 0, "inativas": 4, "polo": "PE Petrolina EXP HC"}, "12545": {"max_seq": 7, "total": 8, "ativas": 0, "tbas": 0, "inativas": 8, "polo": "MT Várzea Grande"}, "12609": {"max_seq": 5, "total": 4, "ativas": 0, "tbas": 0, "inativas": 4, "polo": "SP Taboão da Serra"}, "12034": {"max_seq": 11, "total": 9, "ativas": 0, "tbas": 0, "inativas": 9, "polo": "SC Caçador"}, "12964": {"max_seq": 1, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "PR Guarapuava EXP HC"}, "12014": {"max_seq": 9, "total": 7, "ativas": 0, "tbas": 0, "inativas": 7, "polo": "RJ Itanhangá"}, "12743": {"max_seq": 8, "total": 3, "ativas": 0, "tbas": 0, "inativas": 3, "polo": "PB Campina Grande EXP HC"}, "12733": {"max_seq": 2, "total": 2, "ativas": 0, "tbas": 0, "inativas": 2, "polo": "SP Moema EXP HC"}, "11992": {"max_seq": 6, "total": 4, "ativas": 0, "tbas": 0, "inativas": 4, "polo": "SP Jaú"}, "11991": {"max_seq": 8, "total": 8, "ativas": 0, "tbas": 0, "inativas": 8, "polo": "SP Votuporanga"}, "12771": {"max_seq": 8, "total": 3, "ativas": 0, "tbas": 0, "inativas": 3, "polo": "RJ Campos dos Goytacazes EXP HC"}, "12482": {"max_seq": 5, "total": 4, "ativas": 0, "tbas": 0, "inativas": 4, "polo": "PR Guarapuava"}, "12750": {"max_seq": 10, "total": 5, "ativas": 0, "tbas": 0, "inativas": 5, "polo": "PE Vale do Ipojuca EXP HC"}, "12596": {"max_seq": 6, "total": 5, "ativas": 0, "tbas": 0, "inativas": 5, "polo": "SC Ingleses"}, "12325": {"max_seq": 7, "total": 5, "ativas": 0, "tbas": 0, "inativas": 5, "polo": "BA Barreiras"}, "12796": {"max_seq": 7, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "SP São Carlos EXP HC"}, "12760": {"max_seq": 8, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "SP SBC EXP HC"}, "12572": {"max_seq": 5, "total": 5, "ativas": 0, "tbas": 0, "inativas": 5, "polo": "MG Betim"}, "12741": {"max_seq": 9, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "CE Centro EXP HC"}, "12041": {"max_seq": 6, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "SP Várzea Paulista EXP HC"}, "12785": {"max_seq": 3, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "GO Rio Verde EXP HC"}, "12476": {"max_seq": 8, "total": 8, "ativas": 0, "tbas": 0, "inativas": 8, "polo": "MG Muriaé"}, "12987": {"max_seq": 4, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "AC Rio Branco EXP HC"}, "12536": {"max_seq": 8, "total": 9, "ativas": 0, "tbas": 0, "inativas": 9, "polo": "BA Alagoinhas"}, "12963": {"max_seq": 7, "total": 2, "ativas": 0, "tbas": 0, "inativas": 2, "polo": "MA Imperatriz EXP HC"}, "12003": {"max_seq": 20, "total": 17, "ativas": 0, "tbas": 0, "inativas": 17, "polo": "SP Cotia"}, "12602": {"max_seq": 0, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "SP Itapevi"}, "12557": {"max_seq": 6, "total": 3, "ativas": 0, "tbas": 0, "inativas": 3, "polo": "RJ Queimados"}, "13079": {"max_seq": 10, "total": 9, "ativas": 0, "tbas": 0, "inativas": 9, "polo": "SP Paraíso"}, "12765": {"max_seq": 9, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "SP Tatuapé EXP HC"}, "12019": {"max_seq": 13, "total": 13, "ativas": 0, "tbas": 0, "inativas": 13, "polo": "SP Jacareí"}, "12781": {"max_seq": 5, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "BA Barreiras EXP HC"}, "12907": {"max_seq": 0, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "-"}, "12767": {"max_seq": 6, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "SP Limeira EXP HC"}, "12790": {"max_seq": 6, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "MG Uberaba EXP HC"}, "12761": {"max_seq": 9, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "SP Bom Retiro EXP HC"}, "12486": {"max_seq": 11, "total": 12, "ativas": 0, "tbas": 0, "inativas": 12, "polo": "MG Divinópolis"}, "11971": {"max_seq": 9, "total": 10, "ativas": 0, "tbas": 0, "inativas": 10, "polo": "PR Ponta Grossa"}, "11983": {"max_seq": 20, "total": 13, "ativas": 0, "tbas": 0, "inativas": 13, "polo": "SC Tubarão"}, "12791": {"max_seq": 1, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "PR Paranaguá EXP HC"}, "12610": {"max_seq": 5, "total": 5, "ativas": 0, "tbas": 0, "inativas": 5, "polo": "SC Araranguá"}, "13138": {"max_seq": 16, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "RS Capão da Canoa AV"}, "12738": {"max_seq": 2, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "SP Ourinhos EXP HC"}, "12748": {"max_seq": 9, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "SP Ribeirão Centro EXP HC"}, "12788": {"max_seq": 4, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "RS Gramado EXP HC"}, "12538": {"max_seq": 8, "total": 6, "ativas": 0, "tbas": 0, "inativas": 6, "polo": "DF Parque da Cidade"}, "12739": {"max_seq": 9, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "SC Tubarão EXP HC"}, "12030": {"max_seq": 5, "total": 6, "ativas": 0, "tbas": 0, "inativas": 6, "polo": "SC Lages"}, "12489": {"max_seq": 7, "total": 8, "ativas": 0, "tbas": 0, "inativas": 8, "polo": "MT Rondonópolis"}, "13150": {"max_seq": 7, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "RJ Araruama AV"}, "12962": {"max_seq": 6, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "PR Umuarama EXP HC"}, "12985": {"max_seq": 5, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "MT Sinop EXP HC"}, "13133": {"max_seq": 10, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "AL Maceió AV"}, "13145": {"max_seq": 10, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "RJ Jacarepaguá AV"}, "11813": {"max_seq": 91, "total": 7, "ativas": 0, "tbas": 0, "inativas": 7, "polo": "CE C. Funcionários"}, "12776": {"max_seq": 8, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "BA Itabuna EXP HC"}, "12749": {"max_seq": 7, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "SP Araraquara EXP HC"}, "12775": {"max_seq": 9, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "SP Liberdade EXP HC"}, "13076": {"max_seq": 11, "total": 10, "ativas": 0, "tbas": 0, "inativas": 10, "polo": "SP Perdizes"}, "12587": {"max_seq": 7, "total": 6, "ativas": 0, "tbas": 0, "inativas": 6, "polo": "RJ Penha"}, "12797": {"max_seq": 6, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "RJ Petropolis EXP HC"}, "12565": {"max_seq": 6, "total": 3, "ativas": 0, "tbas": 0, "inativas": 3, "polo": "SP Mauá"}, "12477": {"max_seq": 7, "total": 8, "ativas": 0, "tbas": 0, "inativas": 8, "polo": "MG Patos de Minas"}, "13078": {"max_seq": 9, "total": 7, "ativas": 0, "tbas": 0, "inativas": 7, "polo": "SP República"}, "12768": {"max_seq": 1, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "RS Pelotas EXP HC"}, "12784": {"max_seq": 6, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "RS Passo Fundo EXP HC"}, "13129": {"max_seq": 11, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "BA Centro AV"}, "12485": {"max_seq": 7, "total": 8, "ativas": 0, "tbas": 0, "inativas": 8, "polo": "MG Barbacena"}, "13101": {"max_seq": 6, "total": 7, "ativas": 0, "tbas": 0, "inativas": 7, "polo": "PA Santarém"}, "12783": {"max_seq": 9, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "SP Mogi Guaçu EXP HC"}, "13154": {"max_seq": 5, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "ES Cachoeiro do Itapemerim AV"}, "12132": {"max_seq": 7, "total": 8, "ativas": 0, "tbas": 0, "inativas": 8, "polo": "AC Rio Branco"}, "12994": {"max_seq": 5, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "MG Divinópolis EXP HC"}, "13144": {"max_seq": 9, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "RJ Recreio dos Bandeirantes AV"}, "13146": {"max_seq": 8, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "RJ Niterói AV"}, "13077": {"max_seq": 6, "total": 6, "ativas": 0, "tbas": 0, "inativas": 6, "polo": "SP Vila Monumento"}, "12793": {"max_seq": 8, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "SP Votuporanga EXP HC"}, "13122": {"max_seq": 7, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "BA Itapuã AV"}, "12592": {"max_seq": 5, "total": 4, "ativas": 0, "tbas": 0, "inativas": 4, "polo": "MG Sion"}, "13134": {"max_seq": 11, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "SC Tubarão AV"}, "13099": {"max_seq": 11, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "BA Chapada Diamantina"}, "12778": {"max_seq": 7, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "MG Montes Claros EXP HC"}, "11997": {"max_seq": 10, "total": 10, "ativas": 0, "tbas": 0, "inativas": 10, "polo": "BA Ilhéus"}, "12009": {"max_seq": 6, "total": 4, "ativas": 0, "tbas": 0, "inativas": 4, "polo": "RS Canoas"}, "12608": {"max_seq": 6, "total": 7, "ativas": 0, "tbas": 0, "inativas": 7, "polo": "RJ Barra Mansa"}, "13102": {"max_seq": 4, "total": 2, "ativas": 0, "tbas": 0, "inativas": 2, "polo": "PR União da Vitória"}, "12588": {"max_seq": 9, "total": 6, "ativas": 0, "tbas": 0, "inativas": 6, "polo": "DF Águas Lindas"}, "13098": {"max_seq": 12, "total": 10, "ativas": 0, "tbas": 0, "inativas": 10, "polo": "BA Barreiras"}, "12035": {"max_seq": 8, "total": 8, "ativas": 0, "tbas": 0, "inativas": 8, "polo": "SP Limeira"}, "11968": {"max_seq": 7, "total": 7, "ativas": 0, "tbas": 0, "inativas": 7, "polo": "MG Montes Claros"}, "11977": {"max_seq": 8, "total": 9, "ativas": 0, "tbas": 0, "inativas": 9, "polo": "RJ Petropolis"}, "12480": {"max_seq": 7, "total": 6, "ativas": 0, "tbas": 0, "inativas": 6, "polo": "RJ Angra"}, "13430": {"max_seq": 5, "total": 3, "ativas": 0, "tbas": 0, "inativas": 3, "polo": "RS Canela"}, "13417": {"max_seq": 4, "total": 3, "ativas": 0, "tbas": 0, "inativas": 3, "polo": "BA Jequié"}, "13436": {"max_seq": 7, "total": 3, "ativas": 0, "tbas": 0, "inativas": 3, "polo": "SP Luz - Long Tail"}, "13418": {"max_seq": 13, "total": 8, "ativas": 0, "tbas": 0, "inativas": 8, "polo": "SP Mirandópolis"}, "13432": {"max_seq": 7, "total": 7, "ativas": 0, "tbas": 0, "inativas": 7, "polo": "PE Recife - Long Tail"}, "13434": {"max_seq": 6, "total": 4, "ativas": 0, "tbas": 0, "inativas": 4, "polo": "BA Salvador - Long Tail"}, "12483": {"max_seq": 2, "total": 2, "ativas": 0, "tbas": 0, "inativas": 2, "polo": "RJ Teresópolis"}, "13687": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "MS Jardim dos Estados LT"}, "13721": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "SP Guaianases LT"}, "13714": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "MG Contagem LT"}, "13708": {"max_seq": 12, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "PA Parque Verde LT"}, "13693": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "SP Ourinhos LT"}, "13685": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "GO Noroeste LT"}, "13738": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "SC Itajaí LT"}, "13726": {"max_seq": 11, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "SP Tremembé LT"}, "13725": {"max_seq": 13, "total": 13, "ativas": 0, "tbas": 0, "inativas": 13, "polo": "SP Guará LT"}, "13734": {"max_seq": 10, "total": 10, "ativas": 0, "tbas": 0, "inativas": 10, "polo": "RS Porto Alegre Norte LT"}, "13684": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "GO Setor Sul LT"}, "13731": {"max_seq": 12, "total": 13, "ativas": 0, "tbas": 0, "inativas": 13, "polo": "RS Canoas LT"}, "13727": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "SP Aparecida LT"}, "13709": {"max_seq": 12, "total": 13, "ativas": 0, "tbas": 0, "inativas": 13, "polo": "PA Nazaré LT"}, "13706": {"max_seq": 11, "total": 12, "ativas": 0, "tbas": 0, "inativas": 12, "polo": "AM Amazonas LT"}, "13690": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "SP Marília 1 LT"}, "13736": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "SC Florianópolis Sul LT"}, "13688": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "MS Pioneiros LT"}, "13694": {"max_seq": 11, "total": 12, "ativas": 0, "tbas": 0, "inativas": 12, "polo": "SP Bauru LT"}, "13682": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "SP Catanduva LT"}, "13700": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "CE Centro LT"}, "13740": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "RS Porto Alegre Centro LT"}, "13692": {"max_seq": 12, "total": 13, "ativas": 0, "tbas": 0, "inativas": 13, "polo": "GO Setor Aeroporto LT"}, "13697": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "BA Feira de Santana LT"}, "13737": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "SC Joinville LT"}, "13711": {"max_seq": 15, "total": 15, "ativas": 0, "tbas": 0, "inativas": 15, "polo": "RJ Niterói LT"}, "13717": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "RJ Duque de Caxias LT"}, "13716": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "RJ Zona Sul Rio de Janeiro LT"}, "13699": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "AL Maceió LT"}, "13733": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "SC São José LT"}, "13832": {"max_seq": 13, "total": 14, "ativas": 0, "tbas": 0, "inativas": 14, "polo": "MG Uberlandia LT"}, "14028": {"max_seq": 9, "total": 9, "ativas": 0, "tbas": 0, "inativas": 9, "polo": "SP Itapevi LT"}, "14010": {"max_seq": 12, "total": 12, "ativas": 0, "tbas": 0, "inativas": 12, "polo": "PE Jaboatão dos Guararapes LT"}, "14022": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "SP Araraquara LT"}, "13981": {"max_seq": 9, "total": 10, "ativas": 0, "tbas": 0, "inativas": 10, "polo": "MG Savassi LT"}, "14012": {"max_seq": 9, "total": 10, "ativas": 0, "tbas": 0, "inativas": 10, "polo": "PI João XXIII LT"}, "14014": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "SE Itabaiana LT"}, "13992": {"max_seq": 9, "total": 10, "ativas": 0, "tbas": 0, "inativas": 10, "polo": "PR São José dos Pinhais LT"}, "13998": {"max_seq": 9, "total": 10, "ativas": 0, "tbas": 0, "inativas": 10, "polo": "RS Caxias do Sul LT"}, "13999": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "SC Blumenau LT"}, "13831": {"max_seq": 13, "total": 13, "ativas": 0, "tbas": 0, "inativas": 13, "polo": "CE Maraponga LT"}, "14001": {"max_seq": 13, "total": 13, "ativas": 0, "tbas": 0, "inativas": 13, "polo": "TO Capim Dourado LT"}, "14008": {"max_seq": 14, "total": 12, "ativas": 0, "tbas": 0, "inativas": 12, "polo": "PA Metrópole LT"}, "14030": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "SP Sorocaba LT"}, "13994": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "PR Foz do Iguaçu LT"}, "13971": {"max_seq": 11, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "SP Perus LT"}, "14017": {"max_seq": 9, "total": 10, "ativas": 0, "tbas": 0, "inativas": 10, "polo": "DF Ceilândia LT"}, "14024": {"max_seq": 13, "total": 13, "ativas": 0, "tbas": 0, "inativas": 13, "polo": "SP Bosque Maia LT"}, "13978": {"max_seq": 9, "total": 10, "ativas": 0, "tbas": 0, "inativas": 10, "polo": "MG Uberaba LT"}, "14035": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "SP Campinas 1 LT"}, "13972": {"max_seq": 13, "total": 14, "ativas": 0, "tbas": 0, "inativas": 14, "polo": "SP Cupecê LT"}, "13983": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "MG Divinópolis LT"}, "13984": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "MG Buritis LT"}, "13730": {"max_seq": 11, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "RS São Leopoldo LT"}, "14335": {"max_seq": 98, "total": 5, "ativas": 0, "tbas": 0, "inativas": 5, "polo": "Maranhão Sr"}, "13695": {"max_seq": 16, "total": 17, "ativas": 0, "tbas": 0, "inativas": 17, "polo": "PE Recife LT"}, "13707": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "AM Manauara LT"}, "14039": {"max_seq": 6, "total": 7, "ativas": 0, "tbas": 0, "inativas": 7, "polo": "RR Macuxi LT"}, "14004": {"max_seq": 9, "total": 10, "ativas": 0, "tbas": 0, "inativas": 10, "polo": "BA Lauro de Freitas LT"}, "14336": {"max_seq": 98, "total": 12, "ativas": 0, "tbas": 0, "inativas": 12, "polo": "Santa Catarina 1 Sr"}, "13974": {"max_seq": 6, "total": 5, "ativas": 0, "tbas": 0, "inativas": 5, "polo": "SP Freguesia LT"}, "14033": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "SP Americana LT"}, "13991": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "PR Santa Felicidade LT"}, "14038": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "PB Tambaú LT"}, "14334": {"max_seq": 98, "total": 5, "ativas": 0, "tbas": 0, "inativas": 5, "polo": "Rio de Janeiro 3 Sr"}, "14332": {"max_seq": 98, "total": 20, "ativas": 0, "tbas": 0, "inativas": 20, "polo": "São José dos Campos Sr"}, "14032": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "SP Piracicaba LT"}, "14027": {"max_seq": 10, "total": 10, "ativas": 0, "tbas": 0, "inativas": 10, "polo": "SP Santa Paula LT"}, "13973": {"max_seq": 12, "total": 13, "ativas": 0, "tbas": 0, "inativas": 13, "polo": "SP Cangaíba LT"}, "14020": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "SP Ribeirão Califórnia LT"}, "14013": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "RN Potiguar LT"}, "14333": {"max_seq": 89, "total": 4, "ativas": 0, "tbas": 0, "inativas": 4, "polo": "Centro Oeste Sr"}, "14034": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "SP Araras LT"}, "14007": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "MA Raposa LT"}, "13989": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "PR Xaxim LT"}, "11204": {"max_seq": 49, "total": 19, "ativas": 0, "tbas": 0, "inativas": 19, "polo": "SUL"}, "11203": {"max_seq": 83, "total": 33, "ativas": 0, "tbas": 0, "inativas": 33, "polo": "SUDESTE"}, "13982": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "MG Ipatinga LT"}, "11206": {"max_seq": 39, "total": 13, "ativas": 0, "tbas": 0, "inativas": 13, "polo": "NENO"}, "13977": {"max_seq": 9, "total": 10, "ativas": 0, "tbas": 0, "inativas": 10, "polo": "RJ Cabo Frio LT"}, "14266": {"max_seq": 53, "total": 28, "ativas": 0, "tbas": 0, "inativas": 28, "polo": "SP Virtual São Paulo 3"}, "14284": {"max_seq": 27, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "CENTRO OESTE"}, "13976": {"max_seq": 9, "total": 10, "ativas": 0, "tbas": 0, "inativas": 10, "polo": "RJ Barra LT"}, "14512": {"max_seq": 1, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "DF Distrito Federal Sr"}, "14518": {"max_seq": 5, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "SP Jundiaí Sr"}, "14229": {"max_seq": 23, "total": 22, "ativas": 0, "tbas": 0, "inativas": 22, "polo": "AL Alagoas1 Sr"}, "14709": {"max_seq": 30, "total": 28, "ativas": 0, "tbas": 0, "inativas": 28, "polo": "SP Virtual São Paulo 6"}, "14708": {"max_seq": 30, "total": 28, "ativas": 0, "tbas": 0, "inativas": 28, "polo": "SP Virtual São Paulo 4"}, "14279": {"max_seq": 17, "total": 17, "ativas": 0, "tbas": 0, "inativas": 17, "polo": "SDR"}, "14873": {"max_seq": 10, "total": 10, "ativas": 0, "tbas": 0, "inativas": 10, "polo": "DF Sobradinho LT"}, "14865": {"max_seq": 7, "total": 8, "ativas": 0, "tbas": 0, "inativas": 8, "polo": "SP Caraguatatuba LT"}, "14861": {"max_seq": 4, "total": 5, "ativas": 0, "tbas": 0, "inativas": 5, "polo": "SP Votuporanga LT"}, "14871": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "MT CPA LT"}, "14859": {"max_seq": 8, "total": 7, "ativas": 0, "tbas": 0, "inativas": 7, "polo": "PR Paiçandu LT"}, "14895": {"max_seq": 29, "total": 26, "ativas": 0, "tbas": 0, "inativas": 26, "polo": "SP Virtual São Paulo 8"}, "14893": {"max_seq": 26, "total": 16, "ativas": 0, "tbas": 0, "inativas": 16, "polo": "SP Virtual São Paulo 7"}, "14863": {"max_seq": 8, "total": 7, "ativas": 0, "tbas": 0, "inativas": 7, "polo": "SP Atibaia LT"}, "14855": {"max_seq": 8, "total": 9, "ativas": 0, "tbas": 0, "inativas": 9, "polo": "MG Lagoa Santa LT"}, "14857": {"max_seq": 8, "total": 9, "ativas": 0, "tbas": 0, "inativas": 9, "polo": "PR Cambé LT"}, "14956": {"max_seq": 19, "total": 17, "ativas": 0, "tbas": 0, "inativas": 17, "polo": "SP Virtual São Paulo 9"}, "14965": {"max_seq": 7, "total": 8, "ativas": 0, "tbas": 0, "inativas": 8, "polo": "RJ Volta Redonda LT"}, "14045": {"max_seq": 99, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "SP Coord2 LT"}, "13823": {"max_seq": 99, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "MG Triângulo LT"}, "13820": {"max_seq": 99, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "AM Norte 3 LT"}, "13825": {"max_seq": 99, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "SP Zona Leste"}, "15060": {"max_seq": 10, "total": 6, "ativas": 0, "tbas": 0, "inativas": 6, "polo": "SP Virtual São Paulo 10"}, "15108": {"max_seq": 10, "total": 11, "ativas": 0, "tbas": 0, "inativas": 11, "polo": "BA Camaçari"}, "14836": {"max_seq": 26, "total": 17, "ativas": 0, "tbas": 0, "inativas": 17, "polo": "PB Virtual João Pessoa 7"}, "14953": {"max_seq": 17, "total": 18, "ativas": 0, "tbas": 0, "inativas": 18, "polo": "PB Virtual João Pessoa 13"}, "15025": {"max_seq": 4, "total": 9, "ativas": 0, "tbas": 0, "inativas": 9, "polo": "RO Ariquemes"}, "13821": {"max_seq": 99, "total": 1, "ativas": 0, "tbas": 0, "inativas": 1, "polo": "MA Maranhão LT"}};
+
+function buscar() {
+  var cc  = document.getElementById('cc-input').value.toString().trim();
+  var err = document.getElementById('msg-erro');
+  var res = document.getElementById('resultado');
+  var alr = document.getElementById('alerta-limite');
+  var prx = document.getElementById('res-prox');
+
+  err.style.display = 'none';
+  res.style.display = 'none';
+  alr.style.display = 'none';
+
+  if (!cc || cc.length !== 5 || isNaN(cc)) {
+    err.style.display = 'block';
+    err.innerHTML = '<strong>&#x26A0; CC inválido</strong> — o CC deve ter exatamente 5 dígitos.';
+    return;
+  }
+
+  var info = DADOS[cc];
+  if (!info) {
+    err.style.display = 'block';
+    err.innerHTML = '<strong>&#x26A0; CC não encontrado</strong> — verifique o número ou se o CC existe na hierarquia atual.';
+    return;
+  }
+
+  var proxSeq = info.max_seq + 1;
+  var proxCod = cc + (proxSeq < 10 ? '0' : '') + proxSeq;
+
+  if (info.max_seq >= 99) {
+    alr.style.display = 'block';
+    prx.style.display = 'none';
+  } else {
+    prx.style.display = 'flex';
+    document.getElementById('prox-codigo').textContent = proxCod;
+    resetCopiar();
+  }
+
+  document.getElementById('st-total').textContent   = info.total;
+  document.getElementById('st-ativa').textContent   = info.ativas;
+  document.getElementById('st-tba').textContent     = info.tbas;
+  document.getElementById('st-inativa').textContent = info.inativas;
+  document.getElementById('polo-nome').textContent  =
+    (info.polo && info.polo !== '-') ? info.polo : 'Não identificado';
+
+  res.style.display = 'block';
+  res.classList.remove('animate');
+  setTimeout(function() { res.classList.add('animate'); }, 10);
+}
+
+function copiar() {
+  var cod = document.getElementById('prox-codigo').textContent;
+  // Fallback universal — funciona em file://, http:// e https://
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(cod);
+    } else {
+      var ta = document.createElement('textarea');
+      ta.value = cod;
+      ta.style.position = 'fixed';
+      ta.style.opacity  = '0';
+      document.body.appendChild(ta);
+      ta.focus(); ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    var btn = document.getElementById('btn-copiar');
+    btn.className = 'btn-copiar copiado';
+    btn.textContent = '✓ Copiado!';
+    setTimeout(resetCopiar, 2000);
+  } catch(e) {
+    alert('Código: ' + cod + '\n\nCopie o código acima manualmente.');
+  }
+}
+
+function resetCopiar() {
+  var btn = document.getElementById('btn-copiar');
+  btn.className = 'btn-copiar';
+  btn.textContent = 'Copiar';
+}
+
+// Event listeners — sem onclick inline
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('btn-buscar').addEventListener('click', buscar);
+  document.getElementById('btn-copiar').addEventListener('click', copiar);
+
+  document.getElementById('cc-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' || e.keyCode === 13) buscar();
+  });
+
+  document.getElementById('cc-input').addEventListener('input', function() {
+    document.getElementById('resultado').style.display = 'none';
+    document.getElementById('msg-erro').style.display  = 'none';
+  });
+});
+
+})();
+</script>
+</body>
+</html>
